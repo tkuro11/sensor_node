@@ -3,6 +3,11 @@
 #include "utils.h"
 #include "interp.h"
 
+void Interp::setServer(RelayServer* server) 
+{
+    this->server = server;
+}
+
 void Interp::command_interp(String command, Config &config)
 {
     if (command.startsWith("id "))
@@ -13,11 +18,12 @@ void Interp::command_interp(String command, Config &config)
     else if (command.startsWith("help"))
     {
         Serial.println("help         : display this help message");
-        Serial.println("id <id>      : set id of this module");
+        Serial.println("ver          : show version number");
+        Serial.println("id <id>      : set the id of this module");
         Serial.println("rightid <id> : set rightside id of this module");
         Serial.println("leftid <id>  : set leftside id of this module");
         Serial.println("status       : show settings");
-        Serial.println("save         : save settings to EEPROM and start connect");
+        Serial.println("save         : save settings to EEPROM and start connection");
         Serial.println("invalidate   : invalidate EEPROM settings");
         Serial.println("hold         : hold values of whole sensor net");
         Serial.println("get <id>     : retrieve <id>'s sensor values");
@@ -29,6 +35,10 @@ void Interp::command_interp(String command, Config &config)
         config.right = command.substring(8).toInt();
         Serial.println("OK");
     }
+    else if (command.startsWith("ver"))
+    {
+        Serial.println(VERSION);
+    }
     else if (command.startsWith("leftid "))
     {
         config.left = command.substring(7).toInt();
@@ -37,41 +47,29 @@ void Interp::command_interp(String command, Config &config)
     else if (command.startsWith("get "))
     {
         uint8_t value = command.substring(4).toInt();
+        Packet *p;
         if (value == config.id)
         {
-            Serial.println("hoo");
-            // ore
-            //memcpy(NULL, &config.packet, sizeof(pbuf));
+            p = server->get_packet();
+            p->rssi = -1;
         }
         else
         {
-            //     leftCh->writeValue((uint8_t*)&value, sizeof(value));
-            //     rightCh->writeValue((uint8_t*)&value, sizeof(value));
-            //     std::string mes;
-            //     while (1) {
-            //       ret_message = leftCh->readValue();
-            //       if (ret_message.c_str()[0] != 0xff) break;
-            //     }
-
-            //     if (ret_message.c_str()[10] != 0xfe) {//found
-            //       memcpy(&pbuf, ret_message.c_str(), sizeof(pbuf));
-            //     } else {
-            //       while (1) {
-            //         ret_message = rightCh->readValue();
-            //         if (ret_message.c_str()[0] != 0xff) break;
-            //       }
-            //       if (ret_message.c_str()[10] != 0xfe) {//found
-            //         memcpy(&pbuf, ret_message.c_str(), sizeof(pbuf));
-            //         pbuf.hop +=1;
-            //       }
-            //     }
-            //   }
-            //   Serial.printf("%d,%d,%d,%d,%d\r\n", pbuf.temp, pbuf.lux, pbuf.sound, pbuf.hop, pbuf.rssi);
+            p = server->search(value);
+        }
+        if (p->valid == 0xaaaa) {
+            Serial.println("not found");
+        } else {
+            Serial.printf("%d,%d,%d,%d,%d\r\n", p->temp, p->lux, p->sound, p->hop, p->rssi);
         }
     }
     else if (command.startsWith("hold"))
     {
-        Serial.println("OK");
+        Packet* p = server->search(0xff);
+        if (p->valid == 0xaaaa) 
+            Serial.println("OK");
+        else
+            Serial.println("NG");            
     }
     else if (command.startsWith("status"))
     {

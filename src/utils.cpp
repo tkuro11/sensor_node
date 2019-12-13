@@ -1,6 +1,6 @@
 #include "utils.h"
 #include <EEPROM.h>
-
+#include <Arduino.h>
 //////Serial   ///////////
 
 String readline()
@@ -22,28 +22,22 @@ String readline()
 long sum = 0;
 int count = 0;
 
-void make_packet(Config &config)
+void make_packet(Packet &packet)
 {
     static int prev = 0;
-    if (count % 16 == 0)
-    {
-        Serial.printf("%c\b", "/-\\|"[(count / 16) % 4]);
-    }
     if (count++ < 64)
     {
-        int val = analogRead(26);
-        Serial.println(val);
+        int val = analogRead(sndPin);
         sum += abs(val - prev);
         prev = val;
-        config.packet.temp = analogRead(sensorPin);
-        config.packet.lux = analogRead(luxPin);
-        config.packet.hop = 0;
-        config.packet.rssi = -65;
+        packet.temp = analogRead(sensorPin);
+        packet.lux = analogRead(luxPin);
+        packet.hop = 0;
     }
     else
     {
         count = 0;
-        config.packet.sound = sum / 64;
+        packet.sound = sum / 64;
         sum = 0;
     }
 }
