@@ -28,6 +28,7 @@ void Interp::command_interp(String command, Config &config)
         Serial.println("hold         : hold values of whole sensor net");
         Serial.println("get <id>     : retrieve <id>'s sensor values");
         Serial.println("p <on|off>   : turn on(default)/off prompt (for lifecheck purpose)");
+        Serial.println("tick <val>   : set tick for average-calc.");
         Serial.println("[dataformat]");
         Serial.println("temperature, brightness, sound, hop, rssi");
     }
@@ -45,13 +46,20 @@ void Interp::command_interp(String command, Config &config)
         String  sw = command.substring(2);
         if (sw.equals("on")) {
             prompt = true;
+            Serial.println("prompt ON");
         } else {
             prompt = false;
+            Serial.println("prompt OFF");
         }
     }
     else if (command.startsWith("leftid "))
     {
         config.left = command.substring(7).toInt();
+        Serial.println("OK");
+    }
+    else if (command.startsWith("tick "))
+    {
+        average_count = command.substring(5).toInt();
         Serial.println("OK");
     }
     else if (command.startsWith("get "))

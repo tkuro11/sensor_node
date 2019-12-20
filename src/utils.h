@@ -7,6 +7,6 @@ bool init_EEPROM();
 bool restore_from_EEPROM(Config&);
 void save_to_EEPROM(Config&);
 String readline();
-void make_packet(Packet&);
+void make_packet(Packet&, int);
 
 #endif // __EEPROM__

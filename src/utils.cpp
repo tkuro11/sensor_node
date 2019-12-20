@@ -22,10 +22,10 @@ String readline()
 long sum = 0;
 int count = 0;
 
-void make_packet(Packet &packet)
+void make_packet(Packet &packet, int average_count)
 {
     static int prev = 0;
-    if (count++ < 64)
+    if (count++ < average_count)
     {
         int val = analogRead(sndPin);
         sum += abs(val - prev);
@@ -37,7 +37,7 @@ void make_packet(Packet &packet)
     else
     {
         count = 0;
-        packet.sound = sum / 64;
+        packet.sound = sum / average_count;
         sum = 0;
     }
 }

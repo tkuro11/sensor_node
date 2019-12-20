@@ -9,12 +9,14 @@ public:
     bool valid;
     bool reconf;
     bool prompt;
+    int average_count;
     RelayServer *server;
 
     Interp() {
         reconf = false;
         valid  = false;
         prompt = true;
+        average_count = 100;
     }
 
     void command_interp(String command, Config &config);

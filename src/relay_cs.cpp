@@ -34,13 +34,19 @@ void RelayClient::connect_to()
 { // search child
     if (!conn->connected)
     {
+        failed = false;
         scan->setActiveScan(true);
         scan_cb->dst_addr = NULL;
         LOG("------");
         scan->setAdvertisedDeviceCallbacks(scan_cb);
+        int count = 0;
         while (scan_cb->dst_addr == NULL)
         {
             LOG("scan start");
+            if (++count > 3) {
+                failed = true;
+                return;
+            }
             scan->start(10);
         }
         pClient->connect(*(scan_cb->dst_addr));
@@ -101,7 +107,7 @@ void RelayServer::start()
     advertise();
 }
 
-void RelayServer::tick()
+bool RelayServer::tick(int average_count = 100)
 {
     for (RelayClient *cl : clients)
     {
@@ -110,9 +116,10 @@ void RelayServer::tick()
             cl->connect_to();
             advertise();
         }
+        if (cl->failed) return false;
     }
 
-    make_packet(p_callback->packet);
+    make_packet(p_callback->packet, average_count);
 
     if (p_callback->asserted)
     {
@@ -152,6 +159,7 @@ void RelayServer::tick()
             p_callback->asserted = false;
         }
     }
+    return true;
 }
 
 Packet *RelayServer::get_packet()
@@ -165,19 +173,21 @@ Packet *RelayServer::search(int dst)
     Packet *p;
     for (RelayClient *cl : clients)
     {
-        cl->make_current();
-        p = cl->search(dst);
-        if (p->valid != 0xaaaa)
-        {
-            found = true;
-            tmp = *p;
-            if (cl->id == dst)
+        if (cl->conn->connected) {
+            cl->make_current();
+            p = cl->search(dst);
+            if (p->valid != 0xaaaa)
             {
-                int rssi = cl->getRssi();
-                tmp.rssi = rssi;
+                found = true;
+                tmp = *p;
+                if (cl->id == dst)
+                {
+                    int rssi = cl->getRssi();
+                    tmp.rssi = rssi;
+                }
+                p->valid = 0xffff;
+                break;
             }
-            p->valid = 0xffff;
-            break;
         }
     }
     if (!found)

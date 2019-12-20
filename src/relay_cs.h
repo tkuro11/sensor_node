@@ -63,6 +63,7 @@ protected:
 
 public:
     ConnectCallback *conn;
+    bool failed = false;
     int id;
     RelayClient(int child);
     void connect_to();
@@ -151,7 +152,7 @@ public:
     RelayServer(int id);
     void add(RelayClient *p); // add a child node
     void start();             // service and advertising start
-    void tick();              //
+    bool tick(int);           //
     void advertise();         //
     Packet *search(int);
     Packet *get_packet();     //

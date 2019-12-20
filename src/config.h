@@ -23,8 +23,8 @@ const int luxPin = GPIO_NUM_39;
 const int sndPin = GPIO_NUM_36;
 
 #define VER_MAJOR "0"
-#define VER_MINOR "3"
-#define VER_SUB_MINOR "２"
+#define VER_MINOR "4"
+#define VER_SUB_MINOR "1"
 static const char* VERSION = VER_MAJOR "." VER_MINOR "." VER_SUB_MINOR;
 
 #endif

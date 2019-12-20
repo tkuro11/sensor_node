@@ -58,6 +58,7 @@ void setup()
 void loop()
 {
     static int count = 0;
+    static int fail_count = 0;
     // put your main code here, to run repeatedly:
     if (Serial.available() > 0)
     {
@@ -65,12 +66,16 @@ void loop()
         interp.command_interp(cmd, config);
         Serial.read(); // skip trailing CR
     }
-    if (interp.reconf && interp.prompt) {
+    if (interp.reconf) {
         count++;
         if (count >= 12000) count = 0;
-        if (count % 3000 == 0) {
+        if (count % 3000 == 0 && interp.prompt) {
             Serial.printf("%c\b", "/-\\|"[count / 3000]);
         }
-        server->tick();
+        if (server->tick(interp.average_count) == false) {
+            // fail_count++;
+            Serial.println("failed >> down to terminal mode");
+            interp.reconf = false;
+        }
     }
 }
