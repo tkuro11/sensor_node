@@ -22,15 +22,10 @@ void init_pins()
     pinMode(GPIO_NUM_2, OUTPUT);
     digitalWrite(GPIO_NUM_2, HIGH);
 
-    pinMode(GPIO_NUM_25, OUTPUT); //AR
-    pinMode(GPIO_NUM_26, INPUT);  // Out
-    pinMode(GPIO_NUM_15, OUTPUT); //Gain
-    pinMode(GPIO_NUM_14, OUTPUT); //Vdd
-    pinMode(GPIO_NUM_12, OUTPUT); //GND
-    digitalWrite(25, HIGH);
-    digitalWrite(15, HIGH);
-    digitalWrite(14, HIGH);
-    digitalWrite(12, LOW);
+    pinMode(GPIO_NUM_7, OUTPUT); //AR
+    pinMode(GPIO_NUM_8, OUTPUT); //GAIN
+    digitalWrite(7, LOW);
+    digitalWrite(8, LOW);
 }
 
 RelayClient *client;
@@ -38,17 +33,23 @@ RelayServer *server;
 
 void setup()
 {
+    Serial.begin(115200);
+
     // put your setup code here, to run once:
     init_EEPROM();
-    init_pins();
+    interp.reconf = 
     interp.valid = restore_from_EEPROM(config);
+    init_pins();
 
-    Serial.begin(115200);
     BLEDevice::init("");
-
     server = new RelayServer(config.id);
+    interp.setServer(server);
     if (config.left) {
         auto client = new RelayClient(config.left);
+        server->add(client);
+    }
+    if (config.right) {
+        auto client = new RelayClient(config.right);
         server->add(client);
     }
     server->start();
@@ -61,18 +62,15 @@ void loop()
     if (Serial.available() > 0)
     {
         String cmd = readline();
-        Serial.print("cmd: ");
-        Serial.println(cmd);
         interp.command_interp(cmd, config);
         Serial.read(); // skip trailing CR
     }
     if (interp.reconf) {
         count++;
-        if (count > 120) count = 0;
-        if (count % 30 == 0) {
-            Serial.printf("%c\b", "/-\\|"[count / 100]);
+        if (count >= 12000) count = 0;
+        if (count % 3000 == 0) {
+            Serial.printf("%c\b", "/-\\|"[count / 3000]);
         }
-
         server->tick();
     }
 }
