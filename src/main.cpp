@@ -65,7 +65,7 @@ void loop()
         interp.command_interp(cmd, config);
         Serial.read(); // skip trailing CR
     }
-    if (interp.reconf) {
+    if (interp.reconf && interp.prompt) {
         count++;
         if (count >= 12000) count = 0;
         if (count % 3000 == 0) {

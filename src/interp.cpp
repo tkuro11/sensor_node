@@ -27,6 +27,7 @@ void Interp::command_interp(String command, Config &config)
         Serial.println("invalidate   : invalidate EEPROM settings");
         Serial.println("hold         : hold values of whole sensor net");
         Serial.println("get <id>     : retrieve <id>'s sensor values");
+        Serial.println("p <on|off>   : turn on(default)/off prompt (for lifecheck purpose)");
         Serial.println("[dataformat]");
         Serial.println("temperature, brightness, sound, hop, rssi");
     }
@@ -38,6 +39,15 @@ void Interp::command_interp(String command, Config &config)
     else if (command.startsWith("ver"))
     {
         Serial.println(VERSION);
+    }
+    else if (command.startsWith("p "))
+    {
+        String  sw = command.substring(2);
+        if (sw.equals("on")) {
+            prompt = true;
+        } else {
+            prompt = false;
+        }
     }
     else if (command.startsWith("leftid "))
     {

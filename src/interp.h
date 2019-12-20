@@ -8,11 +8,13 @@ class Interp
 public:
     bool valid;
     bool reconf;
+    bool prompt;
     RelayServer *server;
 
     Interp() {
         reconf = false;
         valid  = false;
+        prompt = true;
     }
 
     void command_interp(String command, Config &config);
