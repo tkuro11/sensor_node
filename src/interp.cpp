@@ -22,13 +22,14 @@ void Interp::command_interp(String command, Config &config)
         Serial.println("id <id>      : set the id of this module");
         Serial.println("rightid <id> : set rightside id of this module");
         Serial.println("leftid <id>  : set leftside id of this module");
-        Serial.println("status       : show settings");
+        Serial.println("st           : show settings");
         Serial.println("save         : save settings to EEPROM and start connection");
         Serial.println("invalidate   : invalidate EEPROM settings");
         Serial.println("hold         : hold values of whole sensor net");
         Serial.println("get <id>     : retrieve <id>'s sensor values");
         Serial.println("p <on|off>   : turn on(default)/off prompt (for lifecheck purpose)");
         Serial.println("tick <val>   : set tick for average-calc.");
+        Serial.println("wdt <val>    : set watchdog timer value in second (default 120)");
         Serial.println("[dataformat]");
         Serial.println("temperature, brightness, sound, hop, rssi");
     }
@@ -62,6 +63,15 @@ void Interp::command_interp(String command, Config &config)
         average_count = command.substring(5).toInt();
         Serial.println("OK");
     }
+    else if (command.startsWith("wdt "))
+    {
+        uint64_t value = command.substring(4).toInt();
+        extern long counter_max;
+        counter_max = value;
+        Serial.print("WatchDog Timer is set to ");
+        Serial.print(counter_max);
+        Serial.println("s");
+    }
     else if (command.startsWith("get "))
     {
         uint8_t value = command.substring(4).toInt();
@@ -89,7 +99,7 @@ void Interp::command_interp(String command, Config &config)
         else
             Serial.println("NG");            
     }
-    else if (command.startsWith("status"))
+    else if (command.startsWith("st"))
     {
         Serial.printf("id = %d\n\rleft, right = %d, %d",
                       config.id, config.left, config.right);

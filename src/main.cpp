@@ -11,6 +11,19 @@
 Config config;
 Interp interp;
 
+long watch_counter = 0;
+long counter_max = 60;
+
+void IRAM_ATTR resetModule() {
+    if (watch_counter++ > counter_max) {
+        ets_printf("reboot\n");
+        esp_restart();
+    } else if (watch_counter > (counter_max -10)) {
+        Serial.print("WDT: Reboot in ");
+        Serial.println(counter_max-watch_counter+1);
+    }
+}
+
 void init_pins()
 {
     pinMode(4, INPUT_PULLDOWN); // init pin
@@ -30,6 +43,7 @@ void init_pins()
 
 RelayClient *client;
 RelayServer *server;
+hw_timer_t *timer;
 
 void setup()
 {
@@ -53,13 +67,19 @@ void setup()
         server->add(client);
     }
     server->start();
+
+    timer = timerBegin(0, 8000, true);
+    timerAlarmWrite(timer, 10000, true);
+    timerAttachInterrupt(timer, &resetModule, true);  
+    timerAlarmEnable(timer);
 }
 
 void loop()
 {
     static int count = 0;
-    static int fail_count = 0;
     // put your main code here, to run repeatedly:
+    watch_counter = 0;
+
     if (Serial.available() > 0)
     {
         String cmd = readline();
