@@ -19,7 +19,7 @@ public:
         average_count = 100;
     }
 
-    void command_interp(String command, Config &config);
+    void command_interp(String , Config &);
     void setServer(RelayServer* );
 };
 

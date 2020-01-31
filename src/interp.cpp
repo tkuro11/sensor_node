@@ -17,21 +17,21 @@ void Interp::command_interp(String command, Config &config)
     }
     else if (command.startsWith("help"))
     {
-        Serial.println("help         : display this help message");
-        Serial.println("ver          : show version number");
-        Serial.println("id <id>      : set the id of this module");
-        Serial.println("rightid <id> : set rightside id of this module");
-        Serial.println("leftid <id>  : set leftside id of this module");
-        Serial.println("st           : show settings");
-        Serial.println("save         : save settings to EEPROM and start connection");
-        Serial.println("invalidate   : invalidate EEPROM settings");
-        Serial.println("hold         : hold values of whole sensor net");
-        Serial.println("get <id>     : retrieve <id>'s sensor values");
-        Serial.println("p <on|off>   : turn on(default)/off prompt (for lifecheck purpose)");
-        Serial.println("tick <val>   : set tick for average-calc.");
-        Serial.println("wdt <val>    : set watchdog timer value in second (default 120)");
-        Serial.println("[dataformat]");
-        Serial.println("temperature, brightness, sound, hop, rssi");
+        Serial.println("help         : display this help message\r\n"
+                       "ver          : show version number\r\n"
+                       "id <id>      : set the id of this module\r\n"
+                       "rightid <id> : set rightside id of this module\r\n"
+                       "leftid <id>  : set leftside id of this module\r\n"
+                       "st           : show settings\r\n"
+                       "save         : save settings to EEPROM and start connection\r\n"
+                       "invalidate   : invalidate EEPROM settings\r\n"
+                       "hold         : hold values of whole sensor net\r\n"
+                       "get <id>     : retrieve <id>'s sensor values\r\n"
+                       "p <on|off>   : turn on(default)/off prompt (for lifecheck purpose)\r\n"
+                       "tick <val>   : set tick for average-calc.\r\n"
+                       "wdt <val>    : set watchdog timer value in second (default 120)\r\n"
+                       "[dataformat]\r\n"
+                       "temperature, brightness, sound, hop, rssi\r\n");
     }
     else if (command.startsWith("rightid "))
     {
@@ -125,6 +125,6 @@ void Interp::command_interp(String command, Config &config)
     }
     else
     {
-        Serial.println("error");
+        Serial.println("no such command.");
     }
 }

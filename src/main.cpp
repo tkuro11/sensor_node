@@ -12,13 +12,13 @@ Config config;
 Interp interp;
 
 long watch_counter = 0;
-long counter_max = 60;
+long counter_max = 25;
 
 void IRAM_ATTR resetModule() {
     if (watch_counter++ > counter_max) {
         ets_printf("reboot\n");
         esp_restart();
-    } else if (watch_counter > (counter_max -10)) {
+    } else if (watch_counter > (counter_max -4)) {
         Serial.print("WDT: Reboot in ");
         Serial.println(counter_max-watch_counter+1);
     }
@@ -78,7 +78,6 @@ void loop()
 {
     static int count = 0;
     // put your main code here, to run repeatedly:
-    watch_counter = 0;
 
     if (Serial.available() > 0)
     {
@@ -87,6 +86,7 @@ void loop()
         Serial.read(); // skip trailing CR
     }
     if (interp.reconf) {
+        watch_counter = 0;
         count++;
         if (count >= 12000) count = 0;
         if (count % 3000 == 0 && interp.prompt) {

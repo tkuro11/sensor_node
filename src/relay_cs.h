@@ -54,6 +54,7 @@ protected:
                 {
                     LOG("found: ");
                     dst_addr = new BLEAddress(advertisedDevice.getAddress());
+                    LOG(dst_addr->toString().c_str());
                     advertisedDevice.getScan()->stop();
                 }
             }
@@ -145,8 +146,21 @@ class RelayServer
     };
     ///////////////////
     Callback *p_callback;
-
+    class ConnectCallback : public BLEServerCallbacks
+    {
+    public:
+        bool connected = false;
+        void onConnect(BLEClient *pClient)
+        {
+            connected = true;
+        }
+        void onDisconnect(BLEClient *pClient)
+        {
+            connected = false;
+        }
+    };
 public:
+    ConnectCallback *conn;
     int rssi;
 
     RelayServer(int id);

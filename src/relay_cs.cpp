@@ -18,6 +18,8 @@ static BLEUUID makeUUID(int id)
     return BLEUUID(buf);
 }
 
+/////////////////////////
+
 RelayClient::RelayClient(int child) : id(child)
 {
     pClient = BLEDevice::createClient(); // create client
@@ -34,7 +36,11 @@ void RelayClient::connect_to()
 { // search child
     if (!conn->connected)
     {
+        int backup_wdt;
+        extern int counter_max;
+        backup_wdt = counter_max;
         failed = false;
+        pClient->disconnect();
         scan->setActiveScan(true);
         scan_cb->dst_addr = NULL;
         LOG("------");
@@ -47,10 +53,10 @@ void RelayClient::connect_to()
                 failed = true;
                 return;
             }
-            scan->start(10);
+            scan->start(5);
         }
+        delay(800);counter_max = 5;
         pClient->connect(*(scan_cb->dst_addr));
-        //delay(100);
         service = pClient->getService(scan_cb->target_UUID);
         ch = service->getCharacteristic(CHARACTERISTIC_UUID);
         //delay(10000);
@@ -94,6 +100,9 @@ RelayServer::RelayServer(int id) : id(id)
     p_callback->p_ch = p_ch;
     p_ch->setCallbacks(p_callback);
     p_ch->setValue(std::string("0"));
+    conn = new ConnectCallback();
+    p_server->setCallbacks(conn);
+
 }
 
 void RelayServer::add(RelayClient *p)
